@@ -12,12 +12,13 @@ type Chat struct {
 	history *History
 }
 
-func NewChat(coder *Coder) (*Chat, error) {
-	history, err := NewHistory()
-	if err != nil {
-		return nil, err
-	}
-	return &Chat{coder, history}, nil
+func NewChat(coder *Coder, errorChan chan<- error) *Chat {
+	history := NewHistory()
+	go func() {
+		err := history.Prepare()
+		errorChan <- err
+	}()
+	return &Chat{coder, history}
 }
 
 type ParsedMessage struct {

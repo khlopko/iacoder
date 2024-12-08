@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"iacoder/pkg/core"
 	"iacoder/pkg/ui"
-	"os"
 
 	"github.com/joho/godotenv"
 )
@@ -14,13 +12,19 @@ func main() {
 
 	coder := core.NewCoder()
 
-	chat, err := core.NewChat(coder)
-	if err != nil {
-		fmt.Printf("Failed to create core systems: %+v", err)
-		os.Exit(1)
-	}
+	errChan := make(chan error)
 
+	chat := core.NewChat(coder, errChan)
 	app := ui.NewApp(chat)
+
+	go func() {
+		for err := range errChan {
+			if err != nil {
+				app.GetProgram().Quit()
+			}
+		}
+	}()
+
 	app.Start()
 }
 

@@ -21,6 +21,10 @@ func NewApp(chat *core.Chat) *App {
 	return &app
 }
 
+func (self *App) GetProgram() *tea.Program {
+	return self.program
+}
+
 func (self *App) Start() {
 	_, err := self.program.Run()
 	if err != nil {
