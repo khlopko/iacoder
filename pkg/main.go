@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"iacoder/pkg/core"
+	"iacoder/pkg/ui"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -10,12 +12,15 @@ import (
 func main() {
 	godotenv.Load(".env.local")
 
-	aiClient := NewAiClient()
-	cliBuilder := NewCliBuilder(aiClient)
-	rootCmd := cliBuilder.Build()
+	coder := core.NewCoder()
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+	chat, err := core.NewChat(coder)
+	if err != nil {
+		fmt.Printf("Failed to create core systems: %+v", err)
 		os.Exit(1)
 	}
+
+	app := ui.NewApp(chat)
+	app.Start()
 }
+

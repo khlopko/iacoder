@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"context"
@@ -37,18 +37,18 @@ type UsageStats struct {
 	//OutputTokensInLastMinute int
 }
 
-type AiClient struct {
+type Coder struct {
 	client *anthropic.Client
 	Limits *RateLimits
 	Usage  UsageStats
 }
 
-func NewAiClient() *AiClient {
+func NewCoder() *Coder {
 	apiKey := os.Getenv("ANTHROPIC_KEY")
 	client := anthropic.NewClient(
 		option.WithAPIKey(apiKey),
 	)
-	return &AiClient{
+	return &Coder{
 		client: client,
 		Limits: nil,
 		Usage: UsageStats{
@@ -59,14 +59,14 @@ func NewAiClient() *AiClient {
 	}
 }
 
-func (c *AiClient) SendMessage(input string) ([]string, error) {
-	systemPrompt, err := os.ReadFile("system.prompt")
+func (c *Coder) SendMessage(input string) ([]string, error) {
+	systemPrompt, err := os.ReadFile("prompts/system.prompt")
 	if err != nil {
 		return nil, err
 	}
 
 	response, err := c.client.Messages.New(context.TODO(), anthropic.MessageNewParams{
-		Model: anthropic.F(anthropic.ModelClaude3_5SonnetLatest),
+		Model: anthropic.F(anthropic.ModelClaude3_5HaikuLatest),
 		MaxTokens: anthropic.Int(4096),
 		Messages: anthropic.F([]anthropic.MessageParam{
 			anthropic.NewUserMessage(anthropic.NewTextBlock(fmt.Sprintf("<Task>%s</Task>", input))),
